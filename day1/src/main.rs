@@ -1,5 +1,14 @@
 use std::io::{self, Read};
 
+fn calculate_required_fuel(input: i64) -> i64 {
+    let retval = input/3 - 2;
+    if retval > 0 {
+        retval + calculate_required_fuel(retval)
+    } else {
+        0
+    }
+}
+
 fn main() -> io::Result<()> {
     let mut result = 0;
 
@@ -10,7 +19,7 @@ fn main() -> io::Result<()> {
 
     for line in lines {
         let mass = line.parse::<i64>().unwrap();
-        result += mass/3 - 2; // Rust automatically rounds down on integer division
+        result += calculate_required_fuel(mass);
     }
 
     println!("{}", result);
