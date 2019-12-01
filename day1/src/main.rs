@@ -26,3 +26,15 @@ fn main() -> io::Result<()> {
 
     Ok(())
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_calculate_required_fuel() {
+        assert_eq!(calculate_required_fuel(14), 2);
+        assert_eq!(calculate_required_fuel(1969), 966);
+        assert_eq!(calculate_required_fuel(100756), 50346);
+    }
+}
