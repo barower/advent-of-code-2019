@@ -1,3 +1,3 @@
 #!/bin/bash
 
-cargo test -- --nocapture
+clear; cargo test -- --nocapture

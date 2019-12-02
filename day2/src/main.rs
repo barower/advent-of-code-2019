@@ -1,6 +1,36 @@
 mod intcode {
-    pub fn intcode(program: &mut[i32]) {
-        program[0] = 2;
+    pub fn intcode(program: &mut[u64]) {
+        let mut program_index: usize = 0;
+
+        loop {
+            let opcode = program[program_index];
+            match opcode {
+                1 => {
+                    println!("Running op1");
+                    let n1 = program[program[program_index + 1 as usize] as usize];
+                    let n2 = program[program[program_index + 2 as usize] as usize];
+                    program[program[program_index + 3 as usize] as usize] = n1 + n2;
+                    println!("program[{}] = {} + {}", program[program_index + 3], n1, n2);
+                    program_index += 4;
+                },
+                2 => {
+                    println!("Running op2");
+                    let n1 = program[program[program_index + 1 as usize] as usize];
+                    let n2 = program[program[program_index + 2 as usize] as usize];
+                    program[program[program_index + 3 as usize] as usize] = n1 * n2;
+                    println!("program[{}] = {} * {}", program[program_index + 3], n1, n2);
+                    program_index += 4;
+                },
+                99 => {
+                    println!("Opcode 99, finishing");
+                    return;
+                },
+                x => {
+                    let retstr = format!("Wrong opcode: {}", x);
+                    panic!(retstr);
+                }
+            }
+        }
     }
 }
 
