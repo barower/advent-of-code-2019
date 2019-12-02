@@ -1,60 +1,64 @@
 #[macro_use] extern crate itertools;
 
 mod intcode {
-    struct ProgramInstance<'a> {
+    pub struct Intcode<'a> {
         prog: &'a mut[u64],
         pc: usize,
     }
 
-    impl ProgramInstance<'_> {
+    impl Intcode<'_> {
+        pub fn new(program: &mut[u64]) -> Intcode {
+            let pr = Intcode {
+                prog: program,
+                pc: 0,
+            };
+
+            pr
+        }
+
+        pub fn run(&mut self) {
+            loop {
+                match self.get_opcode() {
+                    1 => self.op1(),
+                    2 => self.op2(),
+                    99 => {
+                        return;
+                    },
+                    x => {
+                        let retstr = format!("Wrong opcode: {}", x);
+                        panic!(retstr);
+                    }
+                }
+            }
+        }
+
         fn get_opcode(&self) -> u64 {
             self.prog[self.pc]
         }
 
-        fn get_from_index(&self, index: usize) -> u64 {
-            self.prog[self.prog[self.pc + index] as usize]
+        fn get_from_pc_offset(&self, offset: usize) -> u64 {
+            self.prog[self.prog[self.pc + offset] as usize]
         }
 
-        fn set_from_index(&mut self, index: usize, val: u64) {
-            self.prog[self.prog[self.pc + index] as usize] = val;
+        fn set_from_pc_offset(&mut self, offset: usize, val: u64) {
+            self.prog[self.prog[self.pc + offset] as usize] = val;
         }
 
         fn op1(&mut self) {
-            let n1 = self.get_from_index(1);
-            let n2 = self.get_from_index(2);
-            self.set_from_index(3, n1 + n2);
+            let n1 = self.get_from_pc_offset(1);
+            let n2 = self.get_from_pc_offset(2);
+            self.set_from_pc_offset(3, n1 + n2);
             self.pc += 4;
         }
 
         fn op2(&mut self) {
-            let n1 = self.get_from_index(1);
-            let n2 = self.get_from_index(2);
-            self.set_from_index(3, n1 * n2);
+            let n1 = self.get_from_pc_offset(1);
+            let n2 = self.get_from_pc_offset(2);
+            self.set_from_pc_offset(3, n1 * n2);
             self.pc += 4;
         }
     }
 
-    pub fn intcode(program: &mut[u64]) {
-
-        let mut pr = ProgramInstance {
-            prog: program,
-            pc: 0,
-        };
-
-        loop {
-            match pr.get_opcode() {
-                1 => pr.op1(),
-                2 => pr.op2(),
-                99 => {
-                    return;
-                },
-                x => {
-                    let retstr = format!("Wrong opcode: {}", x);
-                    panic!(retstr);
-                }
-            }
-        }
-    }
 }
 
 const DESIRED_VALUE: u64 = 19690720;
@@ -74,7 +78,8 @@ fn main() {
         test_program[1] = noun;
         test_program[2] = verb;
 
-        intcode::intcode(&mut test_program);
+        let mut intcode = intcode::Intcode::new(&mut test_program);
+        intcode.run();
 
         if test_program[0] == DESIRED_VALUE {
             println!("{}", 100 * noun + verb);
@@ -90,28 +95,32 @@ mod tests {
     #[test]
     fn test_intcode0() {
         let mut program = [1, 0, 0, 0, 99];
-        intcode::intcode(&mut program);
+        let mut intcode = intcode::Intcode::new(&mut program);
+        intcode.run();
         assert_eq!(program, [2, 0, 0, 0, 99]);
     }   
 
     #[test]
     fn test_intcode1() {
         let mut program = [2, 3, 0, 3, 99];
-        intcode::intcode(&mut program);
+        let mut intcode = intcode::Intcode::new(&mut program);
+        intcode.run();
         assert_eq!(program, [2, 3, 0, 6, 99]);
     }   
 
     #[test]
     fn test_intcode2() {
         let mut program = [2, 4, 4, 5, 99, 0];
-        intcode::intcode(&mut program);
+        let mut intcode = intcode::Intcode::new(&mut program);
+        intcode.run();
         assert_eq!(program, [2, 4, 4, 5, 99, 9801]);
     }   
 
     #[test]
     fn test_intcode3() {
         let mut program = [1, 1, 1, 4, 99, 5, 6, 0, 99];
-        intcode::intcode(&mut program);
+        let mut intcode = intcode::Intcode::new(&mut program);
+        intcode.run();
         assert_eq!(program, [30, 1, 1, 4, 2, 5, 6, 0, 99]);
     }   
 }
