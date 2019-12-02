@@ -1,24 +1,50 @@
 #[macro_use] extern crate itertools;
 
 mod intcode {
+    struct ProgramInstance<'a> {
+        prog: &'a mut[u64],
+        pc: usize,
+    }
+
+    impl ProgramInstance<'_> {
+        fn get_opcode(&self) -> u64 {
+            self.prog[self.pc]
+        }
+
+        fn get_from_index(&self, index: usize) -> u64 {
+            self.prog[self.prog[self.pc + index] as usize]
+        }
+
+        fn set_from_index(&mut self, index: usize, val: u64) {
+            self.prog[self.prog[self.pc + index] as usize] = val;
+        }
+
+        fn op1(&mut self) {
+            let n1 = self.get_from_index(1);
+            let n2 = self.get_from_index(2);
+            self.set_from_index(3, n1 + n2);
+            self.pc += 4;
+        }
+
+        fn op2(&mut self) {
+            let n1 = self.get_from_index(1);
+            let n2 = self.get_from_index(2);
+            self.set_from_index(3, n1 * n2);
+            self.pc += 4;
+        }
+    }
+
     pub fn intcode(program: &mut[u64]) {
-        let mut program_index: usize = 0;
+
+        let mut pr = ProgramInstance {
+            prog: program,
+            pc: 0,
+        };
 
         loop {
-            let opcode = program[program_index];
-            match opcode {
-                1 => {
-                    let n1 = program[program[program_index + 1 as usize] as usize];
-                    let n2 = program[program[program_index + 2 as usize] as usize];
-                    program[program[program_index + 3 as usize] as usize] = n1 + n2;
-                    program_index += 4;
-                },
-                2 => {
-                    let n1 = program[program[program_index + 1 as usize] as usize];
-                    let n2 = program[program[program_index + 2 as usize] as usize];
-                    program[program[program_index + 3 as usize] as usize] = n1 * n2;
-                    program_index += 4;
-                },
+            match pr.get_opcode() {
+                1 => pr.op1(),
+                2 => pr.op2(),
                 99 => {
                     return;
                 },
