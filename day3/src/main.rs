@@ -17,6 +17,18 @@ mod crossedwires {
     pub fn manhattan_distance(p1: &Point, p2: &Point) -> i64 {
         (p2.x - p1.x).abs() + (p2.y - p1.x).abs()
     }
+
+    pub struct Wire {
+        points: Vec<Point>,
+    }
+
+    impl Wire {
+        pub fn new() -> Wire {
+            let mut wire = Wire { points: Vec::new() };
+            wire.points.push(Point::new(0, 0));
+            wire
+        }
+    }
 }
 
 fn main() {
