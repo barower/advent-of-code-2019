@@ -1,3 +1,4 @@
+#[derive(PartialEq, Debug)]
 pub struct Point {
     x: i64,
     y: i64,
@@ -9,6 +10,12 @@ impl Point {
             x: x,
             y: y,
         }
+    }
+    pub fn x(&self) -> i64 {
+        self.x
+    }
+    pub fn y(&self) -> i64 {
+        self.y
     }
 }
 
